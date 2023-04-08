@@ -11,11 +11,11 @@ let roomID = null;
 
 // Helper function to reset the game board
 function resetBoard() {
-	digits.forEach((digit) => (digit.value = ""));
 	plusElement.textContent = "";
 	minusElement.textContent = "";
 	messageBox.innerHTML = "";
 	submitButton.disabled = false;
+	document.querySelector("#number-input").value = "";
 
 	resetButton.addEventListener("click", resetBoard);
 
@@ -37,33 +37,45 @@ function showMessage(message, isError = false) {
 	messageBox.style.color = isError ? "red" : "green";
 }
 
-// Function to send a guess to the server
-async function sendGuess(guess) {
-	const response = await fetch(API_URL + '/play', {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			room_id: roomID,
-			guess
-		}),
-	});
-	const data = await response.json();
-	if (data.error) {
-		showMessage(data.error, true);
-	} else if (data.message) {
-		showMessage(data.message);
-		submitButton.disabled = true;
-	} else {
-		plusElement.textContent = data.plus;
-		minusElement.textContent = data.minus;
-	}
+// Helper function to add a guess to the guesses list
+function addGuessToList(guess, plus, minus) {
+    const guessesList = document.querySelector("#guesses-list");
+    const guessItem = document.createElement("li");
+    guessItem.innerHTML = `${guess} <span class="plus-minus">( ${plus} + ${minus} )</span>`;
+    guessesList.appendChild(guessItem);
 }
+
+// ...
+
+async function sendGuess(guess) {
+    const response = await fetch(API_URL + '/play', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            room_id: roomID,
+            guess
+        }),
+    });
+    const data = await response.json();
+    if (data.error) {
+        showMessage(data.error, true);
+    } else if (data.message) {
+        showMessage(data.message);
+        submitButton.disabled = true;
+    } else {
+        plusElement.textContent = data.plus;
+        minusElement.textContent = data.minus;
+        addGuessToList(guess, data.plus, data.minus);
+    }
+}
+
+
 
 // Event listeners for the buttons
 submitButton.addEventListener("click", () => {
-	const guess = digits[0].value + digits[1].value + digits[2].value + digits[3].value;
+	const guess = document.querySelector("#number-input").value;
 	sendGuess(guess);
 });
 

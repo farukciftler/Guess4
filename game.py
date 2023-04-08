@@ -10,7 +10,7 @@ CORS(app)
 
 connection = pymysql.connect(
     host='localhost',
-    port=56241,
+    port=49703,
     user='root',
     password='sifreyiunutma',
     db='guess_number',
@@ -46,6 +46,27 @@ def get_generated_number(room_id):
         else:
             generated_number = result["generated_number"]
         return generated_number
+    
+def count_identical_digits(num1, num2):
+    # Convert the numbers to strings and split them into lists of digits
+    digits1 = list(str(num1))
+    digits2 = list(str(num2))
+
+    # Initialize a variable to store the count of identical digits
+    count = 0
+
+    # Iterate through the digits of the first number
+    for digit1 in digits1:
+        # Check if the digit is in the second number and is not in the same position
+        if digit1 in digits2 and digits2.index(digit1) != digits1.index(digit1):
+            # If the digit is found in the second number and is not in the same position,
+            # increment the count variable
+            count += 1
+            # Remove the digit from the second number to avoid counting it twice
+            digits2.remove(digit1)
+    
+    # Return the count of identical digits
+    return count
 
 
 def play(room_id, guess):
@@ -54,7 +75,7 @@ def play(room_id, guess):
     generated_number = get_generated_number(room_id)
     plus = sum(1 for i, digit in enumerate(guess)
                if digit == generated_number[i])
-    minus = len(set(guess).intersection(generated_number)) - plus
+    minus = count_identical_digits(guess,generated_number)
     if plus == 4:
         with connection.cursor() as cursor:
             sql = "INSERT INTO guesses (room_id, guess, plus, minus) VALUES (%s, %s, %s, %s)"
@@ -67,7 +88,7 @@ def play(room_id, guess):
             sql = "UPDATE games SET winningturn = %s WHERE room_id = %s"
             cursor.execute(sql, (total_guesses, room_id))
             connection.commit()
-
+        
         return jsonify({"message": "Congratulations, you guessed the number!"})
     else:
         with connection.cursor() as cursor:

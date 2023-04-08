@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify
 import random
 import pymysql.cursors
+import string
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 connection = pymysql.connect(
     host='localhost',
@@ -14,6 +18,12 @@ connection = pymysql.connect(
     cursorclass=pymysql.cursors.DictCursor
 )
 
+
+def generate_random_string(length):
+    letters = string.ascii_lowercase + string.ascii_uppercase + string.digits
+    return ''.join(random.choice(letters) for _ in range(length))
+
+
 def generate_number():
     while True:
         first_digit = random.randint(1, 9)
@@ -21,6 +31,7 @@ def generate_number():
         number = str(first_digit) + str(last_three_digits).zfill(3)
         if len(set(number)) == 4:
             return number
+
 
 def get_generated_number(room_id):
     with connection.cursor() as cursor:
@@ -36,11 +47,13 @@ def get_generated_number(room_id):
             generated_number = result["generated_number"]
         return generated_number
 
+
 def play(room_id, guess):
     if len(guess) != 4 or not guess.isdigit() or len(set(guess)) != 4:
         return jsonify({"error": "Invalid guess. Please enter a 4-digit number with no repeated digits."})
     generated_number = get_generated_number(room_id)
-    plus = sum(1 for i, digit in enumerate(guess) if digit == generated_number[i])
+    plus = sum(1 for i, digit in enumerate(guess)
+               if digit == generated_number[i])
     minus = len(set(guess).intersection(generated_number)) - plus
     if plus == 4:
         with connection.cursor() as cursor:
@@ -63,13 +76,27 @@ def play(room_id, guess):
             connection.commit()
         return jsonify({"plus": plus, "minus": minus})
 
+
 @app.route("/play", methods=["POST"])
 def play_endpoint():
     data = request.get_json()
     room_id = data.get("room_id")
     guess = data.get("guess")
-
     return play(room_id, guess)
+
+
+@app.route("/getroom", methods=["GET"])
+def getroom():
+    try:
+        with connection.cursor() as cursor:
+            generated_number = generate_number()
+            room_id = generate_random_string(5)
+            sql = "INSERT INTO games (room_id, generated_number, winningturn) VALUES (%s, %s,0)"
+            cursor.execute(sql, (room_id, generated_number))
+            connection.commit()
+            return jsonify({"room_id": room_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

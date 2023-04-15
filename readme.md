@@ -12,13 +12,6 @@ To run this game locally, you need to have Python 3, Flask, PyMySQL, and Flask-C
 4. Run `app.py` using `python app.py`
 5. Visit http://localhost:4500 in your web browser to play the game
 
-## API Endpoints
-
-### /getroom [GET]
-Generates a new game room with a randomly generated 4-digit number and returns the 5-character room ID.
-
-### /play [POST]
-Takes a JSON object with the keys "room_id" and "guess", and returns feedback on the guess in the form of a JSON object with the keys "plus" and "minus". If the guess is correct, the response will include a "message" key with a congratulatory message.
 
 ## Technologies Used
 
@@ -32,7 +25,7 @@ Takes a JSON object with the keys "room_id" and "guess", and returns feedback on
 
 #### `/getroom` [GET]
 
-This endpoint generates a new game room and returns the room ID.
+Generates a new game room with a randomly generated 4-digit number and returns the 5-character room ID.
 
 **Request Parameters:**
 
@@ -44,7 +37,7 @@ None.
 
 #### `/play` [POST]
 
-This endpoint is used to play the game by making a guess.
+Takes a JSON object with the keys "room_id" and "guess", and returns feedback on the guess in the form of a JSON object with the keys "plus" and "minus". If the guess is correct, the response will include a "message" key with a congratulatory message.
 
 **Request Parameters:**
 

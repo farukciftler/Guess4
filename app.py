@@ -123,4 +123,3 @@ def getroom():
 if __name__ == "__main__":
     app.run(port=4500)
 
-write the readme.md in a code snippet for this game beacuse i want to copy these text in markdown language.  write all of them in a snippet please.

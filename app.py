@@ -1,23 +1,32 @@
+import os
+import pymysql.cursors
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import random
-import pymysql.cursors
 import string
 from flask_cors import CORS
 
+# Load the environment variables from the .env file
+load_dotenv()
 
-app = Flask(__name__)
-CORS(app)
+# Get the database connection properties from the environment variables
+host = os.getenv("MYSQL_HOST")
+user = os.getenv("MYSQL_USER")
+password = os.getenv("MYSQL_PASSWORD")
+database = os.getenv("MYSQL_DATABASE")
 
+# Establish a database connection
 connection = pymysql.connect(
-    host='MYSQL HOST',
+    host=host,
     port=3306,
-    user='MYSQL USER',
-    password='MYSQL PASSWORD',
-    db='MYSQL DATABASE',
+    user=user,
+    password=password,
+    db=database,
     charset='utf8mb4',
     cursorclass=pymysql.cursors.DictCursor
 )
-
+app = Flask(__name__)
+CORS(app)
 
 def generate_random_string(length):
     letters = string.ascii_lowercase + string.ascii_uppercase + string.digits

@@ -9,11 +9,11 @@ app = Flask(__name__)
 CORS(app)
 
 connection = pymysql.connect(
-    host='localhost',
-    port=49703,
-    user='root',
-    password='sifreyiunutma',
-    db='guess_number',
+    host='MYSQL HOST',
+    port=3306,
+    user='MYSQL USER',
+    password='MYSQL PASSWORD',
+    db='MYSQL DATABASE',
     charset='utf8mb4',
     cursorclass=pymysql.cursors.DictCursor
 )
@@ -122,3 +122,5 @@ def getroom():
 
 if __name__ == "__main__":
     app.run(port=4500)
+
+write the readme.md in a code snippet for this game beacuse i want to copy these text in markdown language.  write all of them in a snippet please.
